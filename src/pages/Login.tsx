@@ -10,7 +10,10 @@ import Button from '../components/Button'
 // Validação Zod com mensagens personalizadas
 const loginSchema = z.object({
   email: z.string().min(1, 'E-mail é obrigatório').email('E-mail inválido'),
-  password: z.string().min(1, 'Senha é obrigatória').min(6, 'Senha deve ter ao menos 6 caracteres'),
+  password: z
+    .string()
+    .min(1, 'Senha é obrigatória')
+    .min(6, 'Senha deve ter ao menos 6 caracteres'),
 })
 
 type LoginData = z.infer<typeof loginSchema>
@@ -22,10 +25,9 @@ export default function Login() {
     formState: { errors, isSubmitting },
   } = useForm<LoginData>({
     resolver: zodResolver(loginSchema),
-    mode: 'onBlur',  // validação ao sair do campo
+    mode: 'onBlur',
     defaultValues: { email: '', password: '' },
   })
-
   const navigate = useNavigate()
 
   const onSubmit = async (data: LoginData) => {
@@ -79,5 +81,5 @@ export default function Login() {
         </div>
       </form>
     </div>
-)
+  )
 }
