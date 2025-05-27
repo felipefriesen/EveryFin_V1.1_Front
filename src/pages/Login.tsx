@@ -27,9 +27,9 @@ export default function Login() {
   const onSubmit = async (data: LoginData) => {
     try {
       const response = await axios.post(
-        \`\${import.meta.env.VITE_API_URL}/auth/login\`,
-        data
-      );
+  `${import.meta.env.VITE_API_URL}/auth/login`,
+  data
+);
       localStorage.setItem('token', response.data.token);
       navigate('/dashboard');
     } catch (err) {
