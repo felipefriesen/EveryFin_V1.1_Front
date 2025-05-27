@@ -19,9 +19,7 @@ export default function Saidas() {
     }
   }
 
-  useEffect(() => {
-    load()
-  }, [])
+  useEffect(() => { load() }, [])
 
   const onSubmit = async (data: any) => {
     await api.post('/transactions', { ...data, type: 'saida' })
@@ -32,30 +30,26 @@ export default function Saidas() {
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">Lançamento de Saídas</h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="mb-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="mb-6 flex space-x-2">
         <input type="hidden" {...register('id')} />
-        <input {...register('description')} placeholder="Descrição" className="border p-2 mr-2" />
-        <input {...register('value')} placeholder="Valor" type="number" className="border p-2 mr-2" />
-        <input {...register('date')} placeholder="Data" type="date" className="border p-2 mr-2" />
+        <input {...register('description')} placeholder="Descrição" className="border p-2" />
+        <input {...register('value')} placeholder="Valor" type="number" className="border p-2" />
+        <input {...register('date')} type="date" className="border p-2" />
         <Select label="Categoria" options={[{label: 'Despesa Geral', value: 'Despesa Geral'}]} {...register('category')} />
         <Button type="submit">Salvar</Button>
       </form>
       <table className="min-w-full bg-white">
         <thead>
-          <tr>
-            <th>ID</th><th>Descrição</th><th>Valor</th><th>Data</th><th>Categoria</th>
-          </tr>
+          <tr><th>ID</th><th>Desc</th><th>Valor</th><th>Data</th><th>Cat</th></tr>
         </thead>
         <tbody>
           {transactions.map(tx => (
             <tr key={tx.id}>
-              <td>{tx.id}</td>
-              <td>{tx.description}</td>
-              <td>{tx.value}</td>
-              <td>{tx.date}</td>
-              <td>{tx.category}</td>
+              <td>{tx.id}</td><td>{tx.description}</td><td>{tx.value}</td><td>{tx.date}</td><td>{tx.category}</td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
+  )
+}

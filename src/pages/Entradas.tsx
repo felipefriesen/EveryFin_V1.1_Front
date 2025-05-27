@@ -14,15 +14,12 @@ export default function Entradas() {
       const resp = await api.get<Transaction[]>('/transactions/entrada')
       setTransactions(resp.data)
     } catch {
-      // fallback to mock
       const { mockTransactions } = await import('../services/mockData')
       setTransactions(mockTransactions.filter(t => t.type === 'entrada'))
     }
   }
 
-  useEffect(() => {
-    load()
-  }, [])
+  useEffect(() => { load() }, [])
 
   const onSubmit = async (data: any) => {
     await api.post('/transactions', { ...data, type: 'entrada' })
@@ -33,32 +30,27 @@ export default function Entradas() {
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4">Lançamento de Entradas</h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="mb-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="mb-6 flex space-x-2">
         <input type="hidden" {...register('id')} />
-        <input {...register('description')} placeholder="Descrição" className="border p-2 mr-2" />
-        <input {...register('value')} placeholder="Valor" type="number" className="border p-2 mr-2" />
-        <input {...register('date')} placeholder="Data" type="date" className="border p-2 mr-2" />
+        <input {...register('description')} placeholder="Descrição" className="border p-2" />
+        <input {...register('value')} placeholder="Valor" type="number" className="border p-2" />
+        <input {...register('date')} type="date" className="border p-2" />
         <Select label="Categoria" options={[{label: 'Vendas', value: 'Vendas'}]} {...register('category')} />
         <Select label="Cliente" options={[{label: 'Cliente X', value: 'Cliente X'}]} {...register('client')} />
         <Button type="submit">Salvar</Button>
       </form>
       <table className="min-w-full bg-white">
         <thead>
-          <tr>
-            <th>ID</th><th>Descrição</th><th>Valor</th><th>Data</th><th>Categoria</th><th>Cliente</th>
-          </tr>
+          <tr><th>ID</th><th>Desc</th><th>Valor</th><th>Data</th><th>Cat</th><th>Cliente</th></tr>
         </thead>
         <tbody>
           {transactions.map(tx => (
             <tr key={tx.id}>
-              <td>{tx.id}</td>
-              <td>{tx.description}</td>
-              <td>{tx.value}</td>
-              <td>{tx.date}</td>
-              <td>{tx.category}</td>
-              <td>{tx.client}</td>
+              <td>{tx.id}</td><td>{tx.description}</td><td>{tx.value}</td><td>{tx.date}</td><td>{tx.category}</td><td>{tx.client}</td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
+  )
+}
