@@ -1,55 +1,59 @@
-import React, { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import Select from '../components/Select'
-import Button from '../components/Button'
-import api from '../services/api'
-import { Transaction } from '../types'
+
+// src/pages/Saidas.tsx
+import { useState } from 'react';
+import Input from '../components/Input';
+import Select from '../components/Select';
+import Button from '../components/Button';
 
 export default function Saidas() {
-  const { register, handleSubmit, reset } = useForm<Transaction>()
-  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [descricao, setDescricao] = useState('');
+  const [valor, setValor] = useState('');
+  const [categoria, setCategoria] = useState('');
+  const [fornecedor, setFornecedor] = useState('');
+  const [data, setData] = useState('');
 
-  const load = async () => {
-    try {
-      const resp = await api.get<Transaction[]>('/transactions/saida')
-      setTransactions(resp.data)
-    } catch {
-      const { mockTransactions } = await import('../services/mockData')
-      setTransactions(mockTransactions.filter(t => t.type === 'saida'))
-    }
-  }
-
-  useEffect(() => { load() }, [])
-
-  const onSubmit = async (data: any) => {
-    await api.post('/transactions', { ...data, type: 'saida' })
-    reset()
-    load()
-  }
+  const categorias = ['Aluguel', 'Salários', 'Serviços', 'Marketing'];
+  const fornecedores = ['Fornecedor A', 'Empresa B', 'Ciclano'];
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold mb-4">Lançamento de Saídas</h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="mb-6 flex space-x-2">
-        <input type="hidden" {...register('id')} />
-        <input {...register('description')} placeholder="Descrição" className="border p-2" />
-        <input {...register('value')} placeholder="Valor" type="number" className="border p-2" />
-        <input {...register('date')} type="date" className="border p-2" />
-        <Select label="Categoria" options={[{label: 'Despesa Geral', value: 'Despesa Geral'}]} {...register('category')} />
-        <Button type="submit">Salvar</Button>
-      </form>
-      <table className="min-w-full bg-white">
-        <thead>
-          <tr><th>ID</th><th>Desc</th><th>Valor</th><th>Data</th><th>Cat</th></tr>
-        </thead>
-        <tbody>
-          {transactions.map(tx => (
-            <tr key={tx.id}>
-              <td>{tx.id}</td><td>{tx.description}</td><td>{tx.value}</td><td>{tx.date}</td><td>{tx.category}</td>
+    <div className="p-6 space-y-6">
+      <h1 className="text-2xl font-bold text-gray-800">Registrar Saída</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Input label="Descrição" value={descricao} onChange={(e) => setDescricao(e.target.value)} />
+        <Input label="Valor (R$)" type="number" value={valor} onChange={(e) => setValor(e.target.value)} />
+        <Input label="Data" type="date" value={data} onChange={(e) => setData(e.target.value)} />
+        <Select label="Categoria" options={categorias} value={categoria} onChange={(e) => setCategoria(e.target.value)} />
+        <Select label="Fornecedor" options={fornecedores} value={fornecedor} onChange={(e) => setFornecedor(e.target.value)} />
+      </div>
+
+      <Button onClick={() => alert('Saída salva!')}>Salvar Saída</Button>
+
+      <div className="mt-8">
+        <h2 className="text-xl font-semibold mb-4">Últimas Saídas</h2>
+        <table className="w-full table-auto bg-white rounded-lg overflow-hidden">
+          <thead>
+            <tr className="bg-gray-100 text-left">
+              <th className="p-2">Data</th>
+              <th className="p-2">Descrição</th>
+              <th className="p-2">Valor</th>
+              <th className="p-2">Categoria</th>
+              <th className="p-2">Fornecedor</th>
+              <th className="p-2">Ações</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <tr className="border-t">
+              <td className="p-2">18/05/2025</td>
+              <td className="p-2">Pagamento aluguel</td>
+              <td className="p-2">R$ 3.000,00</td>
+              <td className="p-2">Aluguel</td>
+              <td className="p-2">Fornecedor A</td>
+              <td className="p-2">Editar | Excluir</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-  )
+  );
 }
