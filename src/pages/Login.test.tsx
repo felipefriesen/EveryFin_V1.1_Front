@@ -23,7 +23,7 @@ describe('Login Page', () => {
       </MemoryRouter>
     );
 
-    fireEvent.change(screen.getByLabelText(/E-mail/i), { target: { value: 'test@everyfin.com' } });
+    fireEvent.change(screen.getByLabelText(/Usuário/i), { target: { value: 'test@everyfin.com' } });
     fireEvent.change(screen.getByLabelText(/Senha/i), { target: { value: '123456' } });
     fireEvent.click(screen.getByRole('button', { name: /Entrar/i }));
 

@@ -29,6 +29,8 @@ export default function Router() {
       <Route path="/recibos" element={<PrivateRoute><Recibos /></PrivateRoute>} />
       <Route path="/cadastro/clientes" element={<PrivateRoute><CadastroClientes /></PrivateRoute>} />
       <Route path="/cadastro/funcionarios" element={<PrivateRoute><CadastroFuncionarios /></PrivateRoute>} />
+      
+
 
       {/* Fallback para login */}
       <Route path="*" element={<Navigate to="/login" replace />} />
