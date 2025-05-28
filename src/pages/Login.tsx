@@ -1,85 +1,46 @@
-import React from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { useNavigate } from 'react-router-dom'
-import api from '../services/api'
-import Input from '../components/Input'
-import Button from '../components/Button'
 
-// Validação Zod com mensagens personalizadas
-const loginSchema = z.object({
-  email: z.string().min(1, 'E-mail é obrigatório').email('E-mail inválido'),
-  password: z
-    .string()
-    .min(1, 'Senha é obrigatória')
-    .min(6, 'Senha deve ter ao menos 6 caracteres'),
-})
-
-type LoginData = z.infer<typeof loginSchema>
+// src/pages/Login.tsx
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Input from '../components/Input';
+import Button from '../components/Button';
+import api from '../services/api';
 
 export default function Login() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginData>({
-    resolver: zodResolver(loginSchema),
-    mode: 'onBlur',
-    defaultValues: { email: '', password: '' },
-  })
-  const navigate = useNavigate()
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const onSubmit = async (data: LoginData) => {
-    // Mock de credenciais para desenvolvimento
-    if (data.email === 'test@everyfin.com' && data.password === '123456') {
-      localStorage.setItem('token', 'mock-token')
-      navigate('/dashboard')
-      return
-    }
-
+  const handleLogin = async () => {
+    setLoading(true);
+    setError('');
     try {
-      const resp = await api.post('/auth/login', data)
-      localStorage.setItem('token', resp.data.token)
-      navigate('/dashboard')
+      const response = await api.post('/auth/login', { username, password });
+      localStorage.setItem('token', response.data.token);
+      navigate('/dashboard');
     } catch (err) {
-      console.error(err)
-      alert('Falha no login. Verifique suas credenciais.')
+      setError('Credenciais inválidas.');
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm"
-      >
-        <h1 className="text-2xl font-semibold mb-6 text-center">Login</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
 
-        <Input
-          label="E-mail"
-          type="email"
-          {...register('email')}
-          error={errors.email?.message}
-        />
+        <Input label="Usuário" value={username} onChange={(e) => setUsername(e.target.value)} />
+        <Input label="Senha" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
 
-        <Input
-          label="Senha"
-          type="password"
-          {...register('password')}
-          error={errors.password?.message}
-        />
+        {error && <p className="text-red-500 mt-2">{error}</p>}
 
-        <Button type="submit" loading={isSubmitting} className="w-full mt-4">
-          Entrar
+        <Button onClick={handleLogin} disabled={loading} className="mt-4 w-full">
+          {loading ? 'Entrando...' : 'Entrar'}
         </Button>
-
-        <div className="mt-4 text-center">
-          <a href="/cadastro" className="text-blue-500 hover:underline">
-            Criar cadastro
-          </a>
-        </div>
-      </form>
+      </div>
     </div>
-  )
+  );
 }
