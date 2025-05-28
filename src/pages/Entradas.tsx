@@ -1,48 +1,59 @@
 
 // src/pages/Entradas.tsx
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import Input from '../components/Input';
+import Select from '../components/Select';
+import Button from '../components/Button';
 
 interface Entrada {
   id: string;
   descricao: string;
   valor: number;
+  categoria: string;
+  cliente: string;
   data: string;
 }
 
 export default function Entradas() {
-  const [descricao, setDescricao] = useState("");
-  const [valor, setValor] = useState("");
-  const [data, setData] = useState("");
+  const [descricao, setDescricao] = useState('');
+  const [valor, setValor] = useState('');
+  const [categoria, setCategoria] = useState('');
+  const [cliente, setCliente] = useState('');
+  const [data, setData] = useState('');
   const [entradas, setEntradas] = useState<Entrada[]>([]);
+
+  const categorias = ['Serviços', 'Produtos', 'Consultoria'];
+  const clientes = ['Empresa X', 'Cliente Y', 'Fulano'];
 
   const fetchEntradas = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get("/entradas", {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('/entradas', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setEntradas(response.data);
     } catch (error) {
-      console.error("Erro ao carregar entradas:", error);
+      console.error('Erro ao carregar entradas:', error);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem('token');
       await axios.post(
-        "/entradas",
-        { descricao, valor: parseFloat(valor), data },
+        '/entradas',
+        { descricao, valor: parseFloat(valor), categoria, cliente, data },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setDescricao("");
-      setValor("");
-      setData("");
+      setDescricao('');
+      setValor('');
+      setCategoria('');
+      setCliente('');
+      setData('');
       fetchEntradas();
     } catch (error) {
-      console.error("Erro ao criar entrada:", error);
+      console.error('Erro ao salvar entrada:', error);
     }
   };
 
@@ -51,59 +62,44 @@ export default function Entradas() {
   }, []);
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">Lançar Nova Entrada</h2>
-      <form onSubmit={handleSubmit} className="space-y-2 mb-6">
-        <input
-          type="text"
-          placeholder="Descrição"
-          value={descricao}
-          onChange={(e) => setDescricao(e.target.value)}
-          className="border p-2 w-full"
-          required
-        />
-        <input
-          type="number"
-          placeholder="Valor"
-          value={valor}
-          onChange={(e) => setValor(e.target.value)}
-          className="border p-2 w-full"
-          required
-        />
-        <input
-          type="date"
-          value={data}
-          onChange={(e) => setData(e.target.value)}
-          className="border p-2 w-full"
-          required
-        />
-        <button
-          type="submit"
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
-          Salvar Entrada
-        </button>
-      </form>
+    <div className="p-6 space-y-6">
+      <h1 className="text-2xl font-bold text-gray-800">Registrar Entrada</h1>
 
-      <h3 className="text-lg font-semibold mb-2">Entradas Registradas</h3>
-      <table className="w-full border">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border p-2">Descrição</th>
-            <th className="border p-2">Valor</th>
-            <th className="border p-2">Data</th>
-          </tr>
-        </thead>
-        <tbody>
-          {entradas.map((entrada) => (
-            <tr key={entrada.id}>
-              <td className="border p-2">{entrada.descricao}</td>
-              <td className="border p-2">R$ {entrada.valor.toFixed(2)}</td>
-              <td className="border p-2">{entrada.data}</td>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Input label="Descrição" value={descricao} onChange={(e) => setDescricao(e.target.value)} />
+        <Input label="Valor (R$)" type="number" value={valor} onChange={(e) => setValor(e.target.value)} />
+        <Input label="Data" type="date" value={data} onChange={(e) => setData(e.target.value)} />
+        <Select label="Categoria" options={categorias} value={categoria} onChange={(e) => setCategoria(e.target.value)} />
+        <Select label="Cliente" options={clientes} value={cliente} onChange={(e) => setCliente(e.target.value)} />
+      </div>
+
+      <Button onClick={handleSubmit}>Salvar Entrada</Button>
+
+      <div className="mt-8">
+        <h2 className="text-xl font-semibold mb-4">Últimas Entradas</h2>
+        <table className="w-full table-auto bg-white rounded-lg overflow-hidden">
+          <thead>
+            <tr className="bg-gray-100 text-left">
+              <th className="p-2">Data</th>
+              <th className="p-2">Descrição</th>
+              <th className="p-2">Valor</th>
+              <th className="p-2">Categoria</th>
+              <th className="p-2">Cliente</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {entradas.map((entrada) => (
+              <tr className="border-t" key={entrada.id}>
+                <td className="p-2">{entrada.data}</td>
+                <td className="p-2">{entrada.descricao}</td>
+                <td className="p-2">R$ {entrada.valor.toFixed(2)}</td>
+                <td className="p-2">{entrada.categoria}</td>
+                <td className="p-2">{entrada.cliente}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
