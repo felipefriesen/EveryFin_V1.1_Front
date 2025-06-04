@@ -1,19 +1,17 @@
-
-// src/App.tsx
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import Router from './Router';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 
-function App() {
+export default function App() {
   return (
     <BrowserRouter>
       <div className="flex h-screen">
         <Sidebar />
-        <div className="flex flex-col flex-1">
+        <div className="flex-1 flex flex-col">
           <Header />
-          <main className="flex-1 p-4 overflow-y-auto bg-gray-50">
+          <main className="p-4 flex-1 overflow-auto">
             <Router />
           </main>
         </div>
@@ -21,5 +19,3 @@ function App() {
     </BrowserRouter>
   );
 }
-
-export default App;

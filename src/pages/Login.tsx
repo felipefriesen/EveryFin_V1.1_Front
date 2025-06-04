@@ -1,28 +1,85 @@
-// src/pages/Login.tsx
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useNavigate } from 'react-router-dom'
+import api from '../services/api'
+import Input from '../components/Input'
+import Button from '../components/Button'
+
+// Validação Zod com mensagens personalizadas
+const loginSchema = z.object({
+  email: z.string().min(1, 'E-mail é obrigatório').email('E-mail inválido'),
+  password: z
+    .string()
+    .min(1, 'Senha é obrigatória')
+    .min(6, 'Senha deve ter ao menos 6 caracteres'),
+})
+
+type LoginData = z.infer<typeof loginSchema>
 
 export default function Login() {
-  const [username, setUsername] = useState('');
-  const [senha, setSenha] = useState('');
-  const [erro, setErro] = useState('');
-  const [carregando, setCarregando] = useState(false);
-  const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginData>({
+    resolver: zodResolver(loginSchema),
+    mode: 'onBlur',
+    defaultValues: { email: '', password: '' },
+  })
+  const navigate = useNavigate()
 
-  useEffect(() => {
-    console.log('Renderizou tela de login');
-  }, []);
+  const onSubmit = async (data: LoginData) => {
+    // Mock de credenciais para desenvolvimento
+    if (data.email === 'test@everyfin.com' && data.password === '123456') {
+      localStorage.setItem('token', 'mock-token')
+      navigate('/dashboard')
+      return
+    }
+
+    try {
+      const resp = await api.post('/auth/login', data)
+      localStorage.setItem('token', resp.data.token)
+      navigate('/dashboard')
+    } catch (err) {
+      console.error(err)
+      alert('Falha no login. Verifique suas credenciais.')
+    }
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center mb-6">Teste Login</h2>
+    <div className="flex items-center justify-center h-screen bg-gray-100">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm"
+      >
+        <h1 className="text-2xl font-semibold mb-6 text-center">Login</h1>
 
-        <p className="text-sm text-center text-gray-500 mb-6">Se você está vendo essa tela, o React está funcionando.</p>
+        <Input
+          label="E-mail"
+          type="email"
+          {...register('email')}
+          error={errors.email?.message}
+        />
 
-        {/* Removido o formulário para focar apenas no teste de renderização */}
-      </div>
+        <Input
+          label="Senha"
+          type="password"
+          {...register('password')}
+          error={errors.password?.message}
+        />
+
+        <Button type="submit" loading={isSubmitting} className="w-full mt-4">
+          Entrar
+        </Button>
+
+        <div className="mt-4 text-center">
+          <a href="/cadastro" className="text-blue-500 hover:underline">
+            Criar cadastro
+          </a>
+        </div>
+      </form>
     </div>
-  );
+  )
 }
